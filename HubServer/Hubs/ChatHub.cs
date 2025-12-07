@@ -7,6 +7,7 @@ namespace HubServer.Hubs
         public override Task OnConnectedAsync()
         {
             Console.WriteLine("A client connected to the ChatHub." + Context.ConnectionId);
+
             return base.OnConnectedAsync();
         }
     }
