@@ -1,17 +1,53 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.SignalR.Client
 
-<PageTitle>Chat Appliction</PageTitle>
+<PageTitle>Chat Application</PageTitle>
 
-@code{
+<div class="container mt-4">
+    <h3>System Messages</h3>
+
+    @if (systemMessages.Count == 0)
+    {
+        <p class="text-muted">No messages received yet.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var msg in systemMessages)
+            {
+                <li class="list-group-item">
+                    @msg
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    private List<string> systemMessages = new();
+
+    private HubConnection? hubConnection;
+
     protected override async Task OnInitializedAsync()
     {
-        // Create Hub Connection
-        var hubConnection = new HubConnectionBuilder()
-            .WithUrl($"https://localhost:7243/chatHub")
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7243/chatHub")
+            .WithAutomaticReconnect()
             .Build();
 
-        // Start the connection
-         await hubConnection.StartAsync();
+        // Receive message event
+        hubConnection.On<string>("RecieveSystemMessage", RecieveSystemMessage);
+
+        // Start connection
+        await hubConnection.StartAsync();
+    }
+
+    private void RecieveSystemMessage(string message)
+    {
+        if (!string.IsNullOrEmpty(message))
+        {
+            systemMessages.Add($"{DateTime.Now:T} - {message}");
+            StateHasChanged();
+        }
     }
 }

@@ -4,11 +4,10 @@ namespace HubServer.Hubs
 {
     public class ChatHub : Hub
     {
-        public override Task OnConnectedAsync()
+        public override async Task OnConnectedAsync()
         {
-            Console.WriteLine("A client connected to the ChatHub." + Context.ConnectionId);
-
-            return base.OnConnectedAsync();
+            await Clients.Caller.SendAsync("RecieveSystemMessage",
+                $"Hi {Context.ConnectionId}!, you are connected!");
         }
     }
 }
